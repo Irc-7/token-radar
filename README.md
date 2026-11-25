@@ -20,7 +20,7 @@ P25/P75 bands, a reconciliation ledger, and a farm verdict whose arithmetic clos
 
 ```bash
 # grader-equivalent run: reads the sealed snapshot, writes out/ (or $MAKEFUN_OUTPUT_DIR)
-mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
+mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input input/snapshot.json
 
 # unit + integration suite
 node --test test/*.test.ts
@@ -28,7 +28,8 @@ node --test test/*.test.ts
 
 Requires Node 22 or newer (Node 22.23.5 on the build host, Node 26.7.0 on the Windows mirror).
 Standard library only — no `npm install`, no build step, no dependency file. The grader mounts the
-sealed snapshot at `/input/snapshot.json`; locally point `--input` at the same file.
+sealed snapshot at `/input/snapshot.json`. The same file ships in this repo at `input/snapshot.json`,
+so a clean clone runs the entrypoint and the whole suite with nothing else added.
 
 ## The snapshot
 
@@ -176,6 +177,7 @@ no `--no-sandbox`, no preference edited.
 ## Layout
 
 ```
+input/snapshot.json      sealed 758-protocol snapshot, sha256 42a71213…4393
 main.ts                  entrypoint: load, fit, score, gate, write
 lib/snapshot.ts          snapshot types, loader, age days
 lib/buckets.ts           watchlist / traded / excluded / pre-token classification
@@ -195,5 +197,6 @@ test/                    node:test suites, 7 files
 
 `.makefun/owner.json` carries the submitting wallet; `LICENSE` is the OSI licence the competition
 requires. The entry tree is assembled from an explicit allowlist — `LICENSE`, `main.ts`, `lib/`,
-`vendor/`, `README.md`, plus `dashboard/` and `screenshots/` from the built output. The gate harness,
-the `test/` suites, the sealed snapshot and every scratch directory stay out of the submitted tree.
+`vendor/`, `README.md`, plus `dashboard/` and `screenshots/` from the built output. The gate harness
+and every scratch directory stay out of the submitted tree; the sealed snapshot and the `test/` suites
+ship in this repository for reproducibility but are not part of the entry allowlist.
