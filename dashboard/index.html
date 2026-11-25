@@ -2,13 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Radar: pre-token protocols ranked by implied value</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Evidence: Brier 5-fold 0.1318 · base scored rows 0.1305 · BSS -1.0% · base training side 0.1412 · in-sample 0.1301 · base in-sample 0.1373 · n 645 · median age 677 days. -->
+<title>Token Radar v2 — pre-token board</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#board">Skip to the board</a>
-<main id="board" tabindex="-1" aria-busy="true"></main>
+<header class="bar">
+  <div class="brand">
+    <span class="dot" aria-hidden="true"></span>
+    <h1>Token Radar <span class="v">v2</span></h1>
+    <span class="stamp" id="asof" data-kpi="as_of">—</span>
+  </div>
+  <div class="controls">
+    <label class="ctl"><span>Category</span><select id="f-cat" data-filter="category"></select></label>
+    <label class="ctl"><span>Verdict</span><select id="f-verdict" data-filter="verdict">
+      <option value="">All</option><option>FARM</option><option>MARGINAL</option><option>SKIP</option>
+    </select></label>
+    <input id="f-q" data-filter="search" type="search" placeholder="slug" aria-label="Filter by slug">
+    <span class="spread" id="spread" data-spread aria-label="Verdict spread">—</span>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</header>
+
+<main>
+  <section class="kpis" aria-label="Headline numbers">
+    <div class="kpi"><span class="k" data-label>Board rows</span><b class="v" data-kpi="rows">—</b><span class="s" data-sub>100–4000 gate</span></div>
+    <div class="kpi"><span class="k" data-label>Watchlist covered</span><b class="v" data-kpi="coverage">—</b><span class="s" data-sub>of 40, floor</span></div>
+    <div class="kpi"><span class="k" data-label>Total implied</span><b class="v" data-kpi="total">—</b><span class="s" data-sub>USD, point model</span></div>
+    <div class="kpi hero"><span class="k" data-label>Walk-forward miss</span><b class="v" data-kpi="miss">—</b><span class="s" data-sub="miss">baseline —</span><span class="delta" data-delta="miss">—</span></div>
+    <div class="kpi"><span class="k" data-label>Brier (5-fold)</span><b class="v" data-kpi="brier">—</b><span class="s" data-sub="brier">base —</span></div>
+    <div class="kpi"><span class="k" data-label>Checksum</span><b class="v mono" data-kpi="checksum">—</b><span class="s" data-sub>sha of slug·rank·implied</span></div>
+  </section>
+
+  <section class="panel board-panel" aria-label="Board">
+    <div class="phead">
+      <h2>Board</h2>
+      <span class="count" id="count" data-kpi="shown">—</span>
+    </div>
+    <div class="tscroll" tabindex="0" role="region" aria-label="Board table, scrollable">
+      <table id="board">
+        <thead>
+          <tr>
+            <th class="n">#</th><th>Protocol</th><th>Category</th>
+            <th class="n">TVL</th><th class="n">Implied</th><th class="n">P25–P75</th>
+            <th class="n">Odds</th><th class="n">Net/hour</th><th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody data-board></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Validation">
+    <h2>Does the model hold up?</h2>
+    <div class="grid2">
+      <table id="val-value">
+        <caption>Value model — held-out refits</caption>
+        <thead><tr><th>Test</th><th class="n">Miss factor</th></tr></thead>
+        <tbody data-kpi-table="value">
+          <tr><td>Walk-forward</td><td class="n" data-kpi="wf_miss">—</td></tr>
+          <tr><td>Leave-one-out</td><td class="n" data-kpi="loo_miss">—</td></tr>
+          <tr><td>Median-multiple baseline</td><td class="n" data-kpi="base_miss">—</td></tr>
+          <tr><td>Terms kept</td><td class="n" data-kpi="kept">—</td></tr>
+          <tr><td>Walk-forward points</td><td class="n" data-kpi="tested_wf">—</td></tr>
+          <tr><td>Leave-one-out points</td><td class="n" data-kpi="tested_loo">—</td></tr>
+        </tbody>
+      </table>
+      <div>
+        <table id="val-odds">
+          <caption>Peer record — not a forecast</caption>
+          <thead><tr><th>Measure</th><th class="n">Value</th></tr></thead>
+          <tbody data-kpi-table="odds">
+            <tr><td>Brier, 5-fold held out</td><td class="n" data-kpi="brier_cv">—</td></tr>
+            <tr><td>Base rate, scored rows</td><td class="n" data-kpi="brier_base_cv_scored">—</td></tr>
+            <tr><td>Brier skill vs scored</td><td class="n" data-kpi="brier_skill_cv_scored">—</td></tr>
+            <tr><td>Base rate, training side</td><td class="n" data-kpi="brier_base_cv">—</td></tr>
+            <tr><td>Brier, in-sample</td><td class="n" data-kpi="brier_in">—</td></tr>
+            <tr><td>Base rate, in-sample</td><td class="n" data-kpi="brier_base_in">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note">
+          <span data-note="scored">No edge on scored rows.</span>
+          <span data-note="train">Beats training-side base by 6.6%.</span>
+          <span data-note="folds">Loses 3 of 5 folds.</span>
+        </p>
+        <p class="note small"><span><b data-kpi="odds_n">—</b> labelled</span> <span>median age <b data-kpi="median_age">—</b> days</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Ledger">
+    <h2>Reconciliation</h2>
+    <div class="ledger" id="ledger">
+      <div><span>Watchlist</span><b data-count="watchlist">—</b></div>
+      <div><span>Traded</span><b data-count="traded">—</b></div>
+      <div><span>Excluded</span><b data-count="excluded">—</b></div>
+      <div><span>Pre-token</span><b data-count="pre_token">—</b></div>
+      <div><span>Protocols</span><b data-kpi="total_protocols">—</b></div>
+      <div><span>Sum implied</span><b data-kpi="sum_implied">—</b></div>
+      <div class="mono"><span>SHA-256</span><b data-kpi="checksum2">—</b></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="detail" data-detail>
+  <form method="dialog"><button class="x" aria-label="Close">×</button></form>
+  <h2 id="d-name">—</h2>
+  <div class="dgrid" id="d-grid"></div>
+  <h3>Farm arithmetic</h3>
+  <table id="d-farm"><tbody></tbody></table>
+  <h3>Steps</h3>
+  <ol id="d-steps"></ol>
+</dialog>
+
 <script src="../data.js"></script>
 <script src="app.js"></script>
 </body>
